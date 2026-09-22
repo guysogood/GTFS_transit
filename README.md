@@ -1,4 +1,4 @@
-# GTFS Transit Pipeline
+# Boston GTFS Transit Pipeline
 
 A hybrid batch + streaming data pipeline on MBTA's public GTFS-Realtime feed. The focus is orchestration and CI/CD: a date-parameterized, idempotent Airflow DAG, a file-based Spark Structured Streaming job, and a GitHub Actions pipeline that gates deploys on tests.
 
