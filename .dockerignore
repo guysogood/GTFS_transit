@@ -1,0 +1,9 @@
+.venv/
+landing/
+data/
+hot/
+checkpoints/
+logs/
+secrets/
+.git/
+__pycache__/

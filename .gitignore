@@ -1,0 +1,16 @@
+landing/
+data/
+checkpoints/
+hot/
+__pycache__/
+*.pyc
+.venv/
+.env
+*.json.key
+credentials*.json
+.pytest_cache/
+secrets/
+logs/
+.DS_Store
+.claude/
+.vscode/

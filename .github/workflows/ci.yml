@@ -1,0 +1,63 @@
+name: CI/CD
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - run: pip install -r requirements-dev.txt
+      # tests/test_dagbag.py skips itself here (Airflow is not installed); it runs in dagbag-test
+      - run: python -m pytest tests -q
+
+  dagbag-test:
+    runs-on: ubuntu-latest
+    env:
+      AIRFLOW_HOME: ${{ github.workspace }}/.airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      PYTHONPATH: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - run: pip install -r requirements-airflow.txt pytest
+      - run: python -m pytest tests/test_dagbag.py -q
+
+  deploy:
+    needs: [unit-tests, dagbag-test]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Package deployable code
+        run: tar czf deploy.tar.gz dags batch streaming poller requirements.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: airflow-deploy-bundle
+          path: deploy.tar.gz
+      # PLACEHOLDER: no remote Airflow instance exists yet (Airflow runs locally via docker-compose).
+      # Replace this step with the real sync once there is a target, e.g.:
+      #   gsutil -m rsync -r dags gs://<airflow-bucket>/dags
+      #   or rsync/scp to the Airflow host.
+      - name: Sync to Airflow (not configured)
+        run: echo "Deploy bundle built and gated on passing tests; no Airflow target configured yet."
