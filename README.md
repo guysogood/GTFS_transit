@@ -80,11 +80,11 @@ Open http://localhost:8080 (admin / admin) and unpause `daily_transit_batch`. Th
 
 ## CI/CD
 
-`.github/workflows/ci.yml` runs on every PR and on pushes to `main`:
+`.github/workflows/ci.yml` runs on every PR and on pushes to `master`:
 
 1. **unit-tests**: `pytest` on the poller, streaming, batch, validation, quality and load code.
 2. **dagbag-test**: installs Airflow with its constraints file and checks the DAG imports cleanly, has the expected task order, is date-parameterized, and has failure and SLA callbacks.
-3. **deploy** (`main` only, needs both above): packages the deployable code as a build artifact. The final sync step is a placeholder until there is a remote Airflow instance to deploy to.
+3. **deploy** (`master` only, needs both above): packages the deployable code as a build artifact. The final sync step is a placeholder until there is a remote Airflow instance to deploy to.
 
 ## Layout
 
